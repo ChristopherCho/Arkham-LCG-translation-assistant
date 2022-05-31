@@ -54,11 +54,14 @@ ICON_TO_TEXT = {
 
 
 def download_from_link(url:str, output_path:str):
+    dir_path = output_path.rsplit('/', 1)[0]
+    if not os.path.isdir(dir_path):
+        os.makedirs(dir_path, exist_ok=True)
     wget.download(url, out=output_path)
 
 
-def setup_chrome():
-    driver = webdriver.Chrome(executable_path="data/chromedriver.exe")
+def setup_chrome(chromedriver_path):
+    driver = webdriver.Chrome(executable_path=chromedriver_path)
     driver.set_window_size(1, 1)
     return driver
 
@@ -79,7 +82,7 @@ def load_image_with_scale(driver, img_path, scale=5, backside=False):
         download_from_link(image_src, img_path)
 
     img = Image.open(img_path)
-    img = img.resize((300 * scale, 420 * scale), Image.LANCZOS)
+    img = img.resize((int(300 * scale), int(420 * scale)), Image.LANCZOS)
 
     return img
 
@@ -162,13 +165,13 @@ def get_card_text(driver:webdriver.Chrome, backside=False):
 def draw_text(img, text_type, text, top_left_pos, text_box_size, scale=5):
     if text_type == 'card_name':
         fontpath = "data/fonts/경기천년바탕_Bold.ttf"
-        font = ImageFont.truetype(fontpath, 15 * scale)
+        font = ImageFont.truetype(fontpath, int(15 * scale))
     elif text_type == 'card_subname':
         fontpath = "data/fonts/경기천년바탕_Bold.ttf"
-        font = ImageFont.truetype(fontpath, 9 * scale)
+        font = ImageFont.truetype(fontpath, int(9 * scale))
     elif text_type == 'card_trait':
         fontpath = "data/fonts/경기천년제목_Medium.ttf"
-        font = ImageFont.truetype(fontpath, 11 * scale)
+        font = ImageFont.truetype(fontpath, int(11 * scale))
     
     draw = ImageDraw.Draw(img)
     text_size = font.getsize(text)
