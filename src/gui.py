@@ -1,5 +1,6 @@
 from tkinter import *
 from PIL import ImageTk
+import os
 
 from utils import (
     setup_chrome,
@@ -60,8 +61,11 @@ class TextBoxWithPlaceholder(Text):
 
 
 class GUIApp():
-    def __init__(self, root):
-        self.scale = 3
+    def __init__(self, root, args):
+        self.args = args
+        self.scale = args.image_scale
+        self.save_original_size = args.save_original_size
+        self.chromedriver = args.chromedriver
         self.is_backside = False
 
         self.root_frame = Frame(root)
@@ -72,7 +76,7 @@ class GUIApp():
         self.card_id_frame = Frame(self.root_frame)
         self.card_id_frame.grid(row=0, column=0, sticky=N+S+E+W)
 
-        self.driver = setup_chrome()
+        self.driver = setup_chrome(self.chromedriver)
         self.setup_card_id()
 
     def setup_card_id(self):
@@ -221,6 +225,15 @@ class GUIApp():
             suffix = '_back'
 
         output_path = 'data/image/translated/' + self.card_id + suffix + '.png'
+
+        if self.save_original_size:
+            self.img = self.img.resize((300, 420))
+
+        
+        dir_path = output_path.rsplit('/', 1)[0]
+        if not os.path.isdir(dir_path):
+            os.makedirs(dir_path, exist_ok=True)
+
         self.img.save(output_path)
 
     def setup_canvas(self):
