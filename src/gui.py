@@ -1,6 +1,8 @@
 from tkinter import *
-from PIL import ImageTk
+from tkinter.font import Font
+from PIL import ImageTk, Image
 import os
+import pyglet
 
 from utils import (
     setup_chrome,
@@ -13,10 +15,9 @@ from utils import (
     draw_text,
     card_text_to_img,
     put_text_on_img,
-    check_backside_exist
+    check_backside_exist,
+    ICON_TO_TEXT
 )
-
-POS = [0, 0]
 
 class CanvasWithImage(Canvas):
     def __init__(self, parent, *args, **kwargs):
@@ -59,6 +60,56 @@ class TextBoxWithPlaceholder(Text):
             # nothing input, so add back the placeholder
             self.insert_placeholder()
 
+class CustomTextbox(Frame):
+    def __init__(self, parent, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+
+        self.textbox = Text(self, width=50, height=10)
+        self.textbox.grid(row=1, column=0, sticky=N+S+E+W)
+
+        self.icon_frame = Frame(self)
+        self.icon_frame.grid(row=2, column=0, sticky=N+S+E+W)
+
+        self.icon_images = []
+        self.icon_buttons = []
+        charset = set()
+        idx = 0
+        for icon_name, t in ICON_TO_TEXT.items():
+            if t in charset:
+                continue
+            charset.add(t)
+            icon_img_path = "data/icons/" + icon_name + ".png"
+            img = Image.open(icon_img_path)
+            img = img.crop([0,0,75,50])
+            img = img.resize((39, 26))
+            self.icon_images.append(ImageTk.PhotoImage(img))
+            self.icon_buttons.append(self.make_button(idx, t))
+            row_idx = idx // 10
+            col_idx = idx % 10
+
+            self.icon_buttons[idx].grid(row=row_idx, column=col_idx, sticky=N+S+E+W)
+            idx += 1
+
+    def make_button(self, idx, text):
+        button = Button(self.icon_frame, image=self.icon_images[idx], width=39, height=26, command=lambda: self.icon_button_action(text))
+        return button
+    
+    def icon_button_action(self, icon_text):
+        text = f"<span>{icon_text}</span>"
+        self.textbox.insert(INSERT, text)
+
+    def get_text(self):
+        text_str = self.textbox.get("1.0", "end-1c").strip()
+        text_boxes = text_str.split('\n')
+        paragraphs = ["<p>" + text + "</p>" for text in text_boxes]
+        text = "".join(paragraphs)
+
+        return text
+
+    def set_text(self, html):
+        text = html.replace('<p>', '').replace('</p>', '\n').strip()
+        self.textbox.insert(INSERT, text)
+
 
 class GUIApp():
     def __init__(self, root, args):
@@ -94,7 +145,7 @@ class GUIApp():
         if self.backside_exist:
             self.side_text_variable = StringVar()
             self.side_text_variable.set('Do Backside')
-            self.backside_button = Button(self.card_id_frame, textvariable=self.side_text_variable, width=15, height=3, command=self.change_side)
+            self.backside_button = Button(self.card_id_frame, textvariable=self.side_text_variable, width=13, height=1, command=self.change_side)
             self.backside_button.grid(row=0, column=1, sticky=N+S+E+W)
 
         self.setup_everything()
@@ -130,35 +181,29 @@ class GUIApp():
         self.setup_everything()
 
     def setup_buttons(self, text, row, text_type):
-        button_frame = Frame(self.text_frame)
-        button_frame.grid(row=row,column=0,sticky=N+S+E+W)
-
         if text_type == 'card_text':
-            self.fontsize = TextBoxWithPlaceholder(button_frame, "Insert Font Size", height=2)
-            self.fontsize.grid(row=0,column=0,sticky=N+S+E+W)
+            self.fontsize = TextBoxWithPlaceholder(self.text_frame, "Insert Font Size", width=25, height=2)
+            self.fontsize.grid(row=row,column=0,sticky=N+S+E+W)
 
-            generate_button = Button(button_frame, text='Drag & Generate', width=15, height=3, command=lambda: self.generate_button_action(text))
-            generate_button.grid(row=0,column=1,sticky=E+W)
-
-            self.text_canvas = CanvasWithImage(button_frame, width=80, height=10)
-            self.text_canvas.grid(row=1,column=0,sticky=N+S+E+W)
-
-            insert_button = Button(button_frame, text='Insert', width=15, height=3, command=self.insert_button_action)
-            insert_button.grid(row=1,column=1,sticky=E+W)
+            self.custom_text.set_text(text)
+            generate_button = Button(self.text_frame, text='Drag & Generate', width=13, height=1, command=lambda: self.generate_button_action(self.fontsize))
+            generate_button.grid(row=row,column=1,sticky=E+W)
         else:
-            textbox = Label(button_frame, text=text, borderwidth=0, width=80, height=10, justify='center', wraplength=500)
-            textbox.grid(row=0,column=0,sticky=N+S+E+W)
+            textbox = Label(self.text_frame, text=text, borderwidth=0, width=25, height=1, justify='center', wraplength=500)
+            textbox.grid(row=row,column=0,sticky=N+S+E+W)
 
-            insert_button = Button(button_frame, text='Drag & Insert', width=15, height=3, command=lambda: self.g_and_i_button_action(text, text_type))
-            insert_button.grid(row=0,column=1,sticky=E+W)
+            insert_button = Button(self.text_frame, text='Drag & Insert', width=13, height=1, command=lambda: self.g_and_i_button_action(text, text_type))
+            insert_button.grid(row=row,column=1,sticky=E+W)
 
-    def generate_button_action(self, text):
-        font_size = self.fontsize.get("1.0", "end-1c")
+    def generate_button_action(self, fontholder):
+        font_size = fontholder.get("1.0", "end-1c")
         font_size = font_size.strip()
         try:
             font_size = int(font_size)
         except:
             font_size = 20
+
+        text = self.custom_text.get_text()
 
         self.canvas.setup_image(self.img)
         self.canvas.bind("<ButtonPress-1>", self.on_button_press)
@@ -212,9 +257,23 @@ class GUIApp():
             self.setup_buttons(card_trait, idx, 'card_trait')
             idx += 1
 
+        self.custom_text = CustomTextbox(self.text_frame)
+
         if card_text:
             self.setup_buttons(card_text, idx, 'card_text')
             idx += 1
+
+        self.custom_text.grid(row=idx, column=0)
+
+        idx += 1
+
+        self.text_canvas = CanvasWithImage(self.text_frame, width=50, height=10)
+        self.text_canvas.grid(row=idx,column=0,sticky=N+S+E+W)
+
+        insert_button = Button(self.text_frame, text='Insert', width=13, height=1, command=self.insert_button_action)
+        insert_button.grid(row=idx,column=1,sticky=E+W)
+
+        idx += 1
 
         save_button = Button(self.text_frame, text='Save', width=15, height=3, command=self.save_img)
         save_button.grid(row=idx,column=0,sticky=E+W)
