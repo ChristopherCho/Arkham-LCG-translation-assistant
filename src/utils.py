@@ -223,34 +223,18 @@ def inpaint_image(img, top_left_pos, text_box_size):
 
 
 def card_text_to_img(text, width, height, font_size):
-    options = {'width': width, 'height': height, 'transparent': '', 'enable-local-file-access': ''}
+    options = {'width': width, 'height': height, 'transparent': '', 'encoding': 'uft-16', 'enable-local-file-access': ''}
     # css = 'style.css'
     fontpath = Path(__file__).parent.parent / "data" / "fonts"
-    css = """
-    <style>
-        @font-face {
-        font-family: arkham-icons; 
-        src: url('file://""" + str(fontpath) + """/arkham-icons.otf') format('opentype');
-        }
-
-        @font-face {
-            font-family: nanummj; 
-            src: url('file://""" + str(fontpath) + """/NanumMyeongjo.ttf') format('truetype');
-        }
-
-        span { 
-            font-family: 'arkham-icons', cursive; 
-            font-size: """ + str(font_size) + """px;
-        }
-
-        p { 
-            font-family: 'nanummj', cursive; 
-            font-size: """ + str(font_size) + """px;
-            margin: 0;
-            word-break: keep-all;
-        }
-    </style>
-    """
+    css = """<style>@font-face {font-family: arkham-icons; src: url('file:///""" + \
+        str(fontpath).replace('\\', '/') + \
+        """/arkham-icons.otf') format('opentype');} @font-face {font-family: nanummj; src: url('file:///""" + \
+        str(fontpath).replace('\\', '/') + \
+        """/NanumMyeongjo.ttf') format('truetype');}span {font-family: 'arkham-icons', cursive; font-size: """ + \
+        str(font_size) + \
+        """px;} p { font-family: 'nanummj', cursive; font-size: """ + \
+        str(font_size) + \
+        """px; margin: 0; word-break: keep-all;} </style>"""
     if not os.path.isdir('data/tmp'):
         os.makedirs('data/tmp', exist_ok=True)
     imgkit.from_string(css + text, 'data/tmp/info.png', options=options)

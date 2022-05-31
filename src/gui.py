@@ -163,7 +163,7 @@ class GUIApp():
             suffix = '_back'
         filepath = 'data/image/original/' + self.card_id + suffix + '.png'
 
-        self.img = load_image_with_scale(self.driver, filepath, scale=self.scale)
+        self.img = load_image_with_scale(self.driver, filepath, scale=self.scale, backside=self.is_backside)
         self.setup_canvas()
         self.canvas.setup_image(self.img)
         self.setup_text()
@@ -175,7 +175,6 @@ class GUIApp():
             self.side_text_variable.set('Do Frontside')
         
         self.is_backside = not self.is_backside
-
         self.setup_everything()
 
     def setup_buttons(self, text, row, text_type):
