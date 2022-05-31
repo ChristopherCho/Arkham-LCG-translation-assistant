@@ -1,6 +1,4 @@
-import json
 import wget
-from typing import Union
 
 from selenium import webdriver
 from PIL import Image

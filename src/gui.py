@@ -1,8 +1,6 @@
 from tkinter import *
-from tkinter.font import Font
 from PIL import ImageTk, Image
 import os
-import pyglet
 
 from utils import (
     setup_chrome,
