@@ -37,6 +37,19 @@
 5. After all texts you want is inserted, click `Save` button.
 6. For some cards with backside(e.g. 08011a), click `Do Backside` button to translate backside of the card.
 
+## Arguments
+```
+usage: main.py [-h] [--chromedriver CHROMEDRIVER] [--image_scale IMAGE_SCALE] [--save_original_size]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --chromedriver CHROMEDRIVER
+                        Path to chromedriver
+  --image_scale IMAGE_SCALE
+                        Ratio to scale up/down image from original (300 * 420)
+  --save_original_size  Whether to save image in original size (300 * 420)
+```
+
 ## Customization
 For some cards, the translation may not be supplied by Arkham DB.  
 In this case, you can translate it by yourself.  
