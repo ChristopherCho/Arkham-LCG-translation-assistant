@@ -32,9 +32,16 @@
     2. Click `Drag & Generate` button
     3. On image left, drag area to insert text
     4. You may see the generated text with specified area size and font size below
-    5. If you like the generated text, click `Insert` button. Otherwise, re-do all from 1.
+    5. If you like the generated text, click `Insert` button.  
+        Otherwise, finetune by changing font size or text and redo from 4.2.
 5. After all texts you want is inserted, click `Save` button.
 6. For some cards with backside(e.g. 08011a), click `Do Backside` button to translate backside of the card.
+
+## Customization
+For some cards, the translation may not be supplied by Arkham DB.  
+In this case, you can translate it by yourself.  
+Type texts in the text box beneath the font size box.  
+You can also insert icons by clicking the icons below.
 
 ## Licenses
 - Images: all card images are downloaded from [Arkham DB](https://arkhamdb.com/)
