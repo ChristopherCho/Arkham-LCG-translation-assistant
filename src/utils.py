@@ -4,6 +4,7 @@ from typing import Union
 
 from selenium import webdriver
 from PIL import Image
+from pathlib import Path
 
 import numpy as np
 import cv2
@@ -226,16 +227,17 @@ def inpaint_image(img, top_left_pos, text_box_size):
 def card_text_to_img(text, width, height, font_size):
     options = {'width': width, 'height': height, 'transparent': '', 'enable-local-file-access': ''}
     # css = 'style.css'
+    fontpath = Path(__file__).parent.parent / "data" / "fonts"
     css = """
     <style>
         @font-face {
         font-family: arkham-icons; 
-        src: url('file:///C:/Users/christopher/AppData/Local/Microsoft/Windows/Fonts/arkham-icons.otf') format('opentype');
+        src: url('file://""" + str(fontpath) + """/arkham-icons.otf') format('opentype');
         }
 
         @font-face {
             font-family: nanummj; 
-            src: url('file:///C:/Users/christopher/AppData/Local/Microsoft/Windows/Fonts/NanumMyeongjo.ttf') format('truetype');
+            src: url('file://""" + str(fontpath) + """/NanumMyeongjo.ttf') format('truetype');
         }
 
         span { 
@@ -251,6 +253,8 @@ def card_text_to_img(text, width, height, font_size):
         }
     </style>
     """
+    if not os.path.isdir('data/tmp'):
+        os.makedirs('data/tmp', exist_ok=True)
     imgkit.from_string(css + text, 'data/tmp/info.png', options=options)
 
     im = Image.open('data/tmp/info.png')
